@@ -124,3 +124,21 @@ def analyze(inp: AnalyzeIn):
         buf.append(ln)
     flush("plan")
     return {"account_url": inp.account_url, **out}
+from fastapi.openapi.utils import get_openapi
+
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    schema = get_openapi(
+        title="IG Content Coach API",
+        version="1.0.0",
+        routes=app.routes,
+    )
+    if PUBLIC_BASE_URL:
+        schema["servers"] = [{"url": PUBLIC_BASE_URL}]
+    app.openapi_schema = schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
