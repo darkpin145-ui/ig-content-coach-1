@@ -142,3 +142,10 @@ def custom_openapi():
     return app.openapi_schema
 
 app.openapi = custom_openapi
+
+from fastapi.responses import FileResponse
+
+@app.get("/privacy")
+def privacy_page():
+    return FileResponse("app/privacy.html")
+
