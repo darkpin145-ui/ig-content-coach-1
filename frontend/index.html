@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IG Content Coach – Test</title><style>
+body{font-family:system-ui,Arial,sans-serif;background:#0b0f14;color:#e6edf3;margin:0;padding:24px}
+.card{background:#111820;border:1px solid #1f2a36;border-radius:12px;padding:16px;margin-bottom:16px}
+input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3a4a;background:#0b121a;color:#e6edf3}
+button{margin-top:12px;padding:10px 14px;border:0;border-radius:10px;background:#216ce4;color:#fff;cursor:pointer}
+pre{white-space:pre-wrap;background:#0b121a;border:1px solid #2a3a4a;padding:12px;border-radius:8px}
+</style></head>
+<body>
+<h1>IG Content Coach – 로컬 테스트</h1>
+<div class="card">
+  <label>API Base</label><input id="base" value="http://localhost:8001">
+  <label>API Key (x-api-key)</label><input id="key" value="BOT_LOCAL">
+  <label>Account URL</label><input id="url" value="https://www.instagram.com/youraccount/">
+  <label>Follower Count</label><input id="followers" type="number" value="10000">
+  <label>Goals(쉼표)</label><input id="goals" value="브랜드 인지도, 회원권 전환">
+  <label>Recent Posts JSON</label>
+  <textarea id="posts" rows="12">{ "posts": [
+    {"id":"1","type":"reel","date":"2025-09-20","caption":"출근 전 20분 루틴","likes":380,"comments":22,"views":11000,"saves":40,"duration_sec":21,"hashtags":["#헬스","#모닝"]},
+    {"id":"2","type":"photo","date":"2025-09-23","caption":"신규 지점 포스터","likes":150,"comments":5,"hashtags":["#신규"]}
+  ]}</textarea>
+  <button id="go">Analyze</button>
+</div>
+<div class="card" id="out" style="display:none">
+  <h2>결과</h2><pre id="res"></pre>
+</div>
+<script>
+document.getElementById('go').addEventListener('click', async () => {
+  const body = {
+    account_url: document.getElementById('url').value.trim(),
+    follower_count: parseInt(document.getElementById('followers').value,10),
+    goals: document.getElementById('goals').value.split(',').map(s=>s.trim()).filter(Boolean),
+    posts: JSON.parse(document.getElementById('posts').value).posts || []
+  };
+  const res = await fetch(document.getElementById('base').value.trim() + '/analyze', {
+    method:'POST', headers:{'Content-Type':'application/json','x-api-key':document.getElementById('key').value.trim()},
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){ alert('실패: '+res.status); return; }
+  const data = await res.json();
+  document.getElementById('out').style.display='block';
+  document.getElementById('res').textContent = JSON.stringify(data, null, 2);
+});
+</script></body></html>
